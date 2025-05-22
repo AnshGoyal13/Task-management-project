@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False)
     tasks = db.relationship('Task', backref='created_by_user', lazy='dynamic', foreign_keys='Task.created_by_id')
     
     def set_password(self, password):
