@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 20 14.3% 4.1%;
+  --muted: 60 4.8% 95.9%;
+  --muted-foreground: 25 5.3% 44.7%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 14.3% 4.1%;
+  --card: 0 0% 100%;
+  --card-foreground: 20 14.3% 4.1%;
+  --border: 20 5.9% 90%;
+  --input: 20 5.9% 90%;
+  --primary: 220 71% 58%; /* #4A6FDC */
+  --primary-foreground: 211 100% 99%;
+  --secondary: 215 5% 46%; /* #6C757D */
+  --secondary-foreground: 24 9.8% 10%;
+  --accent: 60 4.8% 95.9%;
+  --accent-foreground: 24 9.8% 10%;
+  --destructive: 0 84.2% 60.2%; /* #DC3545 */
+  --destructive-foreground: 60 9.1% 97.8%;
+  --success: 150 49% 37%; /* #2E8B57 */
+  --success-foreground: 0 0% 98%;
+  --warning: 35 91% 61%; /* #F6AF42 */
+  --warning-foreground: 20 14.3% 4.1%;
+  --ring: 20 14.3% 4.1%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --primary: 220 71% 58%; /* #4A6FDC */
+  --primary-foreground: 211 100% 99%;
+  --secondary: 215 5% 46%; /* #6C757D */
+  --secondary-foreground: 0 0% 98%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --success: 150 49% 37%; /* #2E8B57 */
+  --success-foreground: 0 0% 98%;
+  --warning: 35 91% 61%; /* #F6AF42 */
+  --warning-foreground: 20 14.3% 4.1%;
+  --ring: 240 4.9% 83.9%;
+  --radius: 0.5rem;
+}
+
+.status-indicator {
+  @apply w-3 h-3 rounded-full inline-block mr-1.5;
+}
+
+@layer components {
+  .status-not-started {
+    @apply bg-secondary;
+  }
+
+  .status-in-progress {
+    @apply bg-warning;
+  }
+
+  .status-completed {
+    @apply bg-success;
+  }
+
+  .status-overdue {
+    @apply bg-destructive;
+  }
+}
+
+.task-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.task-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-gray-50 text-foreground;
+  }
+}

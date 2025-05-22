@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}TaskMaster - Tasks{% endblock %}
+
+{% block sidebar %}
+<div class="col-md-3 col-lg-2 sidebar p-3">
+    <div class="mb-4">
+        <a href="{{ url_for('main.new_task') }}" class="btn btn-primary w-100">
+            <i class="fa-solid fa-plus me-2"></i>Create Task
+        </a>
+    </div>
+    
+    <div class="mb-4">
+        <h6 class="sidebar-heading text-uppercase fs-7 mb-2">Filters</h6>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link sidebar-link {{ 'active' if filter_type == 'all' else '' }}" href="{{ url_for('main.tasks', filter='all') }}">
+                    <i class="fa-solid fa-list me-2"></i>
+                    All Tasks
+                    <span class="badge bg-light text-dark ms-auto">{{ task_counts.all }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link sidebar-link {{ 'active' if filter_type == 'today' else '' }}" href="{{ url_for('main.tasks', filter='today') }}">
+                    <i class="fa-solid fa-calendar-day me-2"></i>
+                    Due Today
+                    <span class="badge bg-light text-dark ms-auto">{{ task_counts.today }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link sidebar-link {{ 'active' if filter_type == 'upcoming' else '' }}" href="{{ url_for('main.tasks', filter='upcoming') }}">
+                    <i class="fa-solid fa-calendar me-2"></i>
+                    Upcoming
+                    <span class="badge bg-light text-dark ms-auto">{{ task_counts.upcoming }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link sidebar-link {{ 'active' if filter_type == 'overdue' else '' }}" href="{{ url_for('main.tasks', filter='overdue') }}">
+                    <i class="fa-solid fa-exclamation-triangle me-2 text-danger"></i>
+                    Overdue
+                    <span class="badge bg-danger text-white ms-auto">{{ task_counts.overdue }}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div>
+        <h6 class="sidebar-heading text-uppercase fs-7 mb-2">Status</h6>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link sidebar-link {{ 'active' if status_filter == 'not-started' else '' }}" href="{{ url_for('main.tasks', status='not-started') }}">
+                    <span class="status-dot not-started me-2"></span>
+                    Not Started
+                    <span class="badge bg-light text-dark ms-auto">{{ task_counts.not_started }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link sidebar-link {{ 'active' if status_filter == 'in-progress' else '' }}" href="{{ url_for('main.tasks', status='in-progress') }}">
+                    <span class="status-dot in-progress me-2"></span>
+                    In Progress
+                    <span class="badge bg-light text-dark ms-auto">{{ task_counts.in_progress }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link sidebar-link {{ 'active' if status_filter == 'completed' else '' }}" href="{{ url_for('main.tasks', status='completed') }}">
+                    <span class="status-dot completed me-2"></span>
+                    Completed
+                    <span class="badge bg-light text-dark ms-auto">{{ task_counts.completed }}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Mobile search and filters (only visible on small screens) -->
+    <div class="d-md-none mb-3">
+        <div class="input-group mb-3">
+            <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
+            <input type="text" id="mobileSearch" class="form-control" placeholder="Search tasks...">
+        </div>
+        
+        <div class="d-flex overflow-auto pb-2 gap-2">
+            <a href="{{ url_for('main.tasks', filter='all') }}" class="btn btn-sm {{ 'btn-secondary' if filter_type == 'all' else 'btn-outline-secondary' }}">
+                <i class="fa-solid fa-list me-1"></i> All
+            </a>
+            <a href="{{ url_for('main.tasks', filter='today') }}" class="btn btn-sm {{ 'btn-secondary' if filter_type == 'today' else 'btn-outline-secondary' }}">
+                <i class="fa-solid fa-calendar-day me-1"></i> Today
+            </a>
+            <a href="{{ url_for('main.tasks', filter='upcoming') }}" class="btn btn-sm {{ 'btn-secondary' if filter_type == 'upcoming' else 'btn-outline-secondary' }}">
+                <i class="fa-solid fa-calendar me-1"></i> Upcoming
+            </a>
+            <a href="{{ url_for('main.tasks', filter='overdue') }}" class="btn btn-sm {{ 'btn-secondary' if filter_type == 'overdue' else 'btn-outline-secondary' }}">
+                <i class="fa-solid fa-exclamation-triangle me-1"></i> Overdue
+            </a>
+        </div>
+    </div>
+    
+    <!-- Page header with filter info and sort options -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                {% if filter_type == 'today' %}
+                    Due Today
+                {% elif filter_type == 'upcoming' %}
+                    Upcoming Tasks
+                {% elif filter_type == 'overdue' %}
+                    Overdue Tasks
+                {% elif status_filter %}
+                    {{ status_filter|replace('-', ' ')|title }} Tasks
+                {% else %}
+                    All Tasks
+                {% endif %}
+            </h1>
+            <p class="text-muted">{{ tasks|length }} tasks found</p>
+        </div>
+        
+        <div class="d-flex align-items-center">
+            <label for="sortSelect" class="me-2 text-nowrap d-none d-sm-block">Sort by:</label>
+            <form action="{{ url_for('main.tasks') }}" method="get" class="sort-form">
+                <input type="hidden" name="filter" value="{{ filter_type }}">
+                <input type="hidden" name="status" value="{{ status_filter }}">
+                <input type="hidden" name="search" value="{{ search_query }}">
+                
+                <select id="sortSelect" name="sort_by" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="due_date" {{ 'selected' if sort_by == 'due_date' else '' }}>Due Date</option>
+                    <option value="created_date" {{ 'selected' if sort_by == 'created_date' else '' }}>Created Date</option>
+                    <option value="title" {{ 'selected' if sort_by == 'title' else '' }}>Title</option>
+                    <option value="status" {{ 'selected' if sort_by == 'status' else '' }}>Status</option>
+                </select>
+                
+                <input type="hidden" name="sort_order" value="{{ 'desc' if sort_order == 'asc' else 'asc' }}">
+            </form>
+        </div>
+    </div>
+    
+    <!-- Tasks grid -->
+    {% if tasks %}
+        <div class="row g-4">
+            {% for task in tasks %}
+                <div class="col-sm-6 col-lg-4 col-xl-3 task-card-container">
+                    <div class="card task-card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-start">
+                            <h5 class="card-title mb-0 text-truncate">{{ task.title }}</h5>
+                            <span class="status-badge {{ task.status }}">
+                                <span class="status-dot {{ task.status }}"></span>
+                                {{ task.status|replace('-', ' ')|title }}
+                            </span>
+                        </div>
+                        
+                        <div class="card-body">
+                            {% if task.description %}
+                                <p class="card-text description">{{ task.description }}</p>
+                            {% endif %}
+                            
+                            <div class="task-meta mt-3">
+                                <div class="task-meta-item {{ 'text-danger' if task.due_date.date() < today and task.status != 'completed' else '' }}">
+                                    <i class="fa-solid fa-calendar me-2"></i> 
+                                    {{ task.due_date.strftime('%b %d, %Y') }}
+                                </div>
+                                
+                                {% if task.remarks %}
+                                    <div class="task-meta-item mt-1">
+                                        <i class="fa-solid fa-comment me-2"></i> 
+                                        <span class="text-truncate">{{ task.remarks }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="card-footer bg-transparent">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    Created by {{ task.created_by_name }}
+                                </small>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('main.edit_task', task_id=task.id) }}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteTaskModal{{ task.id }}">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Delete Confirmation Modal -->
+                    <div class="modal fade" id="deleteTaskModal{{ task.id }}" tabindex="-1" aria-labelledby="deleteTaskModalLabel{{ task.id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteTaskModalLabel{{ task.id }}">Delete Task</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete the task "{{ task.title }}"? This action cannot be undone.
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <form action="{{ url_for('main.delete_task', task_id=task.id) }}" method="post">
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty state -->
+        <div class="text-center py-5">
+            <div class="empty-state">
+                <i class="fa-solid fa-clipboard-list fa-3x text-muted mb-3"></i>
+                <h4>No tasks found</h4>
+                <p class="text-muted">Create a new task or change your filters to see results.</p>
+                <a href="{{ url_for('main.new_task') }}" class="btn btn-primary mt-2">
+                    <i class="fa-solid fa-plus me-2"></i>Create Task
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Quick action floating button (mobile only) -->
+<div class="fab-container d-md-none">
+    <a href="{{ url_for('main.new_task') }}" class="btn btn-primary btn-fab">
+        <i class="fa-solid fa-plus"></i>
+    </a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Mobile search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileSearchInput = document.getElementById('mobileSearch');
+        if (mobileSearchInput) {
+            mobileSearchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    window.location.href = "{{ url_for('main.tasks') }}?search=" + encodeURIComponent(this.value);
+                }
+            });
+            
+            // Set initial value from URL params
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchQuery = urlParams.get('search');
+            if (searchQuery) {
+                mobileSearchInput.value = searchQuery;
+            }
+        }
+    });
+</script>
+{% endblock %}

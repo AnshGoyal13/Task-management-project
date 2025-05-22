@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}TaskMaster - Home{% endblock %}
+
+{% block sidebar %}
+<div class="col-md-3 col-lg-2 sidebar p-3">
+    <div class="mb-4">
+        <a href="{{ url_for('main.new_task') }}" class="btn btn-primary w-100">
+            <i class="fa-solid fa-plus me-2"></i>Create Task
+        </a>
+    </div>
+    
+    <div class="mb-4">
+        <h6 class="sidebar-heading text-uppercase fs-7 mb-2">Filters</h6>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link sidebar-link {{ 'active' if filter_type == 'all' else '' }}" href="{{ url_for('main.tasks', filter='all') }}">
+                    <i class="fa-solid fa-list me-2"></i>
+                    All Tasks
+                    <span class="badge bg-light text-dark ms-auto">{{ task_counts.all }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link sidebar-link {{ 'active' if filter_type == 'today' else '' }}" href="{{ url_for('main.tasks', filter='today') }}">
+                    <i class="fa-solid fa-calendar-day me-2"></i>
+                    Due Today
+                    <span class="badge bg-light text-dark ms-auto">{{ task_counts.today }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link sidebar-link {{ 'active' if filter_type == 'upcoming' else '' }}" href="{{ url_for('main.tasks', filter='upcoming') }}">
+                    <i class="fa-solid fa-calendar me-2"></i>
+                    Upcoming
+                    <span class="badge bg-light text-dark ms-auto">{{ task_counts.upcoming }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link sidebar-link {{ 'active' if filter_type == 'overdue' else '' }}" href="{{ url_for('main.tasks', filter='overdue') }}">
+                    <i class="fa-solid fa-exclamation-triangle me-2 text-danger"></i>
+                    Overdue
+                    <span class="badge bg-danger text-white ms-auto">{{ task_counts.overdue }}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div>
+        <h6 class="sidebar-heading text-uppercase fs-7 mb-2">Status</h6>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link sidebar-link {{ 'active' if status_filter == 'not-started' else '' }}" href="{{ url_for('main.tasks', status='not-started') }}">
+                    <span class="status-dot not-started me-2"></span>
+                    Not Started
+                    <span class="badge bg-light text-dark ms-auto">{{ task_counts.not_started }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link sidebar-link {{ 'active' if status_filter == 'in-progress' else '' }}" href="{{ url_for('main.tasks', status='in-progress') }}">
+                    <span class="status-dot in-progress me-2"></span>
+                    In Progress
+                    <span class="badge bg-light text-dark ms-auto">{{ task_counts.in_progress }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link sidebar-link {{ 'active' if status_filter == 'completed' else '' }}" href="{{ url_for('main.tasks', status='completed') }}">
+                    <span class="status-dot completed me-2"></span>
+                    Completed
+                    <span class="badge bg-light text-dark ms-auto">{{ task_counts.completed }}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">Welcome to TaskMaster</h1>
+            <p class="lead">Your comprehensive task management application</p>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-box bg-primary bg-opacity-10 text-primary">
+                            <i class="fa-solid fa-list"></i>
+                        </div>
+                        <h5 class="card-title ms-3 mb-0">Total Tasks</h5>
+                    </div>
+                    <h2 class="display-5 mb-0">{{ task_counts.all }}</h2>
+                    <a href="{{ url_for('main.tasks') }}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-box bg-warning bg-opacity-10 text-warning">
+                            <i class="fa-solid fa-calendar-day"></i>
+                        </div>
+                        <h5 class="card-title ms-3 mb-0">Due Today</h5>
+                    </div>
+                    <h2 class="display-5 mb-0">{{ task_counts.today }}</h2>
+                    <a href="{{ url_for('main.tasks', filter='today') }}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-box bg-info bg-opacity-10 text-info">
+                            <i class="fa-solid fa-spinner"></i>
+                        </div>
+                        <h5 class="card-title ms-3 mb-0">In Progress</h5>
+                    </div>
+                    <h2 class="display-5 mb-0">{{ task_counts.in_progress }}</h2>
+                    <a href="{{ url_for('main.tasks', status='in-progress') }}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-box bg-danger bg-opacity-10 text-danger">
+                            <i class="fa-solid fa-exclamation-triangle"></i>
+                        </div>
+                        <h5 class="card-title ms-3 mb-0">Overdue</h5>
+                    </div>
+                    <h2 class="display-5 mb-0">{{ task_counts.overdue }}</h2>
+                    <a href="{{ url_for('main.tasks', filter='overdue') }}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-12">
+            <h4 class="mb-3">Quick Actions</h4>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="card action-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa-solid fa-plus text-primary me-2"></i> Create Task</h5>
+                    <p class="card-text">Add a new task to your list with title, description, due date, and more.</p>
+                    <a href="{{ url_for('main.new_task') }}" class="btn btn-primary">Create Task</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-4">
+            <div class="card action-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa-solid fa-tasks text-success me-2"></i> View All Tasks</h5>
+                    <p class="card-text">View all your tasks in one place with options to filter and sort.</p>
+                    <a href="{{ url_for('main.tasks') }}" class="btn btn-outline-primary">View Tasks</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-4">
+            <div class="card action-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa-solid fa-calendar-day text-warning me-2"></i> Today's Tasks</h5>
+                    <p class="card-text">Focus on what needs to be done today to stay on track.</p>
+                    <a href="{{ url_for('main.tasks', filter='today') }}" class="btn btn-outline-primary">View Today's Tasks</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

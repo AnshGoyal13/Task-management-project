@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}TaskMaster - Tasks{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Mobile search bar (visible only on small screens) -->
+    <div class="d-md-none mb-3">
+        <form action="{{ url_for('tasks') }}" method="get">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-search text-muted"></i></span>
+                <input type="text" class="form-control border-start-0" placeholder="Search tasks..." name="search" value="{{ search_query|default('') }}">
+            </div>
+        </form>
+    </div>
+    
+    <!-- Page header with filter info -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                {% if filter_type == 'today' %}
+                    Due Today
+                {% elif filter_type == 'upcoming' %}
+                    Upcoming Tasks
+                {% elif filter_type == 'overdue' %}
+                    Overdue Tasks
+                {% elif status_filter %}
+                    {{ status_filter|replace('-', ' ')|title }} Tasks
+                {% else %}
+                    All Tasks
+                {% endif %}
+            </h1>
+            <p class="text-muted">{{ tasks|length }} tasks found</p>
+        </div>
+        
+        <div class="d-flex align-items-center">
+            <label for="sortSelect" class="me-2 text-nowrap d-none d-sm-block">Sort by:</label>
+            <form action="{{ url_for('tasks') }}" method="get" class="sort-form">
+                <input type="hidden" name="filter" value="{{ filter_type }}">
+                <input type="hidden" name="status" value="{{ status_filter }}">
+                <input type="hidden" name="search" value="{{ search_query }}">
+                
+                <select id="sortSelect" name="sort_by" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="due_date">Due Date</option>
+                    <option value="created_date">Created Date</option>
+                    <option value="title">Title</option>
+                    <option value="status">Status</option>
+                </select>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Tasks grid -->
+    {% if tasks %}
+        <div class="row g-4">
+            {% for task in tasks %}
+                <div class="col-sm-6 col-lg-4 col-xl-3 task-card-container">
+                    <div class="card task-card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-start">
+                            <h5 class="card-title mb-0 text-truncate">{{ task.title }}</h5>
+                            <span class="status-badge {{ task.status }}">
+                                <span class="status-dot {{ task.status }}"></span>
+                                {{ task.status|replace('-', ' ')|title }}
+                            </span>
+                        </div>
+                        
+                        <div class="card-body">
+                            {% if task.description %}
+                                <p class="card-text">{{ task.description }}</p>
+                            {% endif %}
+                            
+                            <div class="task-meta mt-3">
+                                <div class="task-meta-item {{ 'text-danger' if task.due_date.date() < today and task.status != 'completed' else '' }}">
+                                    <i class="fa-solid fa-calendar me-2"></i> 
+                                    {{ task.due_date.strftime('%b %d, %Y') }}
+                                </div>
+                                
+                                {% if task.remarks %}
+                                    <div class="task-meta-item mt-1">
+                                        <i class="fa-solid fa-comment me-2"></i> 
+                                        <span class="text-truncate">{{ task.remarks }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="card-footer bg-transparent">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    Created by {{ task.created_by_name }}
+                                </small>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteTaskModal{{ task.id }}">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Delete Confirmation Modal -->
+                    <div class="modal fade" id="deleteTaskModal{{ task.id }}" tabindex="-1" aria-labelledby="deleteTaskModalLabel{{ task.id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteTaskModalLabel{{ task.id }}">Delete Task</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete the task "{{ task.title }}"? This action cannot be undone.
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <form action="{{ url_for('delete_task', task_id=task.id) }}" method="post">
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty state -->
+        <div class="text-center py-5">
+            <div class="empty-state">
+                <i class="fa-solid fa-clipboard-list fa-3x text-muted mb-3"></i>
+                <h4>No tasks found</h4>
+                <p class="text-muted">Create a new task or change your filters to see results.</p>
+                <a href="{{ url_for('new_task') }}" class="btn btn-primary mt-2">
+                    <i class="fa-solid fa-plus me-2"></i>Create Task
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Quick action floating button (mobile only) -->
+<div class="position-fixed bottom-0 end-0 m-4 d-md-none">
+    <a href="{{ url_for('new_task') }}" class="btn btn-primary rounded-circle shadow p-3">
+        <i class="fa-solid fa-plus"></i>
+    </a>
+</div>
+{% endblock %}

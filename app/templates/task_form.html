@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}TaskMaster - {{ title }}{% endblock %}
+
+{% block sidebar %}
+<div class="col-md-3 col-lg-2 sidebar p-3">
+    <div class="mb-4">
+        <a href="{{ url_for('main.new_task') }}" class="btn btn-primary w-100">
+            <i class="fa-solid fa-plus me-2"></i>Create Task
+        </a>
+    </div>
+    
+    <div class="mb-4">
+        <h6 class="sidebar-heading text-uppercase fs-7 mb-2">Filters</h6>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link sidebar-link" href="{{ url_for('main.tasks', filter='all') }}">
+                    <i class="fa-solid fa-list me-2"></i>
+                    All Tasks
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link sidebar-link" href="{{ url_for('main.tasks', filter='today') }}">
+                    <i class="fa-solid fa-calendar-day me-2"></i>
+                    Due Today
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link sidebar-link" href="{{ url_for('main.tasks', filter='upcoming') }}">
+                    <i class="fa-solid fa-calendar me-2"></i>
+                    Upcoming
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link sidebar-link" href="{{ url_for('main.tasks', filter='overdue') }}">
+                    <i class="fa-solid fa-exclamation-triangle me-2 text-danger"></i>
+                    Overdue
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div>
+        <h6 class="sidebar-heading text-uppercase fs-7 mb-2">Status</h6>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link sidebar-link" href="{{ url_for('main.tasks', status='not-started') }}">
+                    <span class="status-dot not-started me-2"></span>
+                    Not Started
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link sidebar-link" href="{{ url_for('main.tasks', status='in-progress') }}">
+                    <span class="status-dot in-progress me-2"></span>
+                    In Progress
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link sidebar-link" href="{{ url_for('main.tasks', status='completed') }}">
+                    <span class="status-dot completed me-2"></span>
+                    Completed
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h4 class="card-title mb-0">{{ title }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ request.path }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label") }}
+                            {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else ""), placeholder="Enter task title") }}
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.title.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), placeholder="Enter task description", rows=3) }}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.description.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.due_date.label(class="form-label") }}
+                                {{ form.due_date(class="form-control" + (" is-invalid" if form.due_date.errors else ""), type="date") }}
+                                {% if form.due_date.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.due_date.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.status.label(class="form-label") }}
+                                {{ form.status(class="form-select" + (" is-invalid" if form.status.errors else "")) }}
+                                {% if form.status.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.status.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.remarks.label(class="form-label") }}
+                            {{ form.remarks(class="form-control" + (" is-invalid" if form.remarks.errors else ""), placeholder="Any additional notes or remarks", rows=2) }}
+                            {% if form.remarks.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.remarks.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('main.tasks') }}" class="btn btn-outline-secondary">Cancel</a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
