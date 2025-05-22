@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
+import { Task } from '@shared/schema';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +24,7 @@ export default function Header({ onSearch }: HeaderProps) {
   const { toast } = useToast();
   
   // Fetch all tasks for export
-  const { data: tasks } = useQuery({
+  const { data: tasks } = useQuery<Task[]>({
     queryKey: ['/api/tasks'],
     queryFn: () => 
       fetch('/api/tasks')
@@ -48,7 +49,7 @@ export default function Header({ onSearch }: HeaderProps) {
     const csvHeader = 'Title,Description,Due Date,Status,Remarks,Created By,Created On\n';
     
     // Convert tasks to CSV rows
-    const csvRows = tasks.map(task => {
+    const csvRows = tasks.map((task: Task) => {
       const formattedDate = format(new Date(task.dueDate), 'yyyy-MM-dd');
       const formattedCreatedDate = format(new Date(task.createdOn), 'yyyy-MM-dd');
       
@@ -69,9 +70,9 @@ export default function Header({ onSearch }: HeaderProps) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     
-    // Set up and trigger download
+    // Set up and trigger download - save to the exports/csv folder
     link.setAttribute('href', url);
-    link.setAttribute('download', `taskmaster_export_${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    link.setAttribute('download', `exports/csv/taskmaster_export_${format(new Date(), 'yyyy-MM-dd')}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -99,7 +100,7 @@ export default function Header({ onSearch }: HeaderProps) {
     emailBody += '<table border="1" cellpadding="5" style="border-collapse: collapse;">';
     emailBody += '<tr style="background-color: #f2f2f2;"><th>Title</th><th>Description</th><th>Due Date</th><th>Status</th><th>Remarks</th></tr>';
     
-    tasks.forEach(task => {
+    tasks.forEach((task: Task) => {
       const formattedDate = format(new Date(task.dueDate), 'MMM dd, yyyy');
       const statusClass = task.status === 'completed' ? 'color: green;' :
                         task.status === 'in-progress' ? 'color: orange;' : '';
