@@ -110,11 +110,11 @@ export default function TaskForm({ isOpen, onClose, taskToEdit }: TaskFormProps)
 
   const createTaskMutation = useMutation({
     mutationFn: (data: TaskFormValues) => {
-      // Format the date as an ISO string for the server
-      const dueDateObj = new Date(data.dueDate);
+      // The date is already a Date object thanks to our schema
       return apiRequest('POST', '/api/tasks', {
         ...data,
-        dueDate: dueDateObj,
+        // Include the priority in the request
+        priority: data.priority,
       });
     },
     onSuccess: () => {
@@ -137,11 +137,11 @@ export default function TaskForm({ isOpen, onClose, taskToEdit }: TaskFormProps)
 
   const updateTaskMutation = useMutation({
     mutationFn: (data: TaskFormValues) => {
-      // Format the date as an ISO string for the server
-      const dueDateObj = new Date(data.dueDate);
+      // The date is already a Date object thanks to our schema
       return apiRequest('PATCH', `/api/tasks/${taskToEdit?.id}`, {
         ...data,
-        dueDate: dueDateObj,
+        // Include the priority in the request
+        priority: data.priority,
         lastUpdatedByName: "John Doe", // Default user
       });
     },
@@ -311,6 +311,61 @@ export default function TaskForm({ isOpen, onClose, taskToEdit }: TaskFormProps)
                 )}
               />
             </div>
+            
+            <FormField
+              control={form.control}
+              name="priority"
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel>Priority</FormLabel>
+                  <FormDescription>
+                    Select the priority level for this task
+                  </FormDescription>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex space-x-1"
+                    >
+                      <FormItem className="flex items-center space-x-1 space-y-0 rounded-md border p-3 flex-1">
+                        <FormControl>
+                          <RadioGroupItem value="low" />
+                        </FormControl>
+                        <FormLabel className="flex flex-col items-center justify-between cursor-pointer">
+                          <div className="flex items-center justify-center w-full">
+                            <CheckCircle className="h-4 w-4 text-success mr-2" />
+                            <span>Low</span>
+                          </div>
+                        </FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-1 space-y-0 rounded-md border p-3 flex-1">
+                        <FormControl>
+                          <RadioGroupItem value="medium" />
+                        </FormControl>
+                        <FormLabel className="flex flex-col items-center justify-between cursor-pointer">
+                          <div className="flex items-center justify-center w-full">
+                            <CalendarCheck className="h-4 w-4 text-warning mr-2" />
+                            <span>Medium</span>
+                          </div>
+                        </FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-1 space-y-0 rounded-md border p-3 flex-1">
+                        <FormControl>
+                          <RadioGroupItem value="high" />
+                        </FormControl>
+                        <FormLabel className="flex flex-col items-center justify-between cursor-pointer">
+                          <div className="flex items-center justify-center w-full">
+                            <AlertTriangle className="h-4 w-4 text-destructive mr-2" />
+                            <span>High</span>
+                          </div>
+                        </FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             
             <FormField
               control={form.control}
