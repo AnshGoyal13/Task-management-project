@@ -23,11 +23,21 @@ export const tasks = pgTable("tasks", {
   lastUpdatedByName: varchar("last_updated_by_name", { length: 255 }).default("System User"),
 });
 
+// Create and modify the insert schema to handle date validation better
 export const insertTaskSchema = createInsertSchema(tasks)
   .omit({ 
     id: true,
     createdOn: true, 
     lastUpdatedOn: true,
+  })
+  .extend({
+    // Override the dueDate validation to handle both Date objects and ISO strings
+    dueDate: z.union([
+      z.date(),
+      z.string().refine(val => !isNaN(new Date(val).getTime()), {
+        message: "Invalid date format"
+      }).transform(val => new Date(val))
+    ])
   });
 
 export const updateTaskSchema = createInsertSchema(tasks)
@@ -36,6 +46,15 @@ export const updateTaskSchema = createInsertSchema(tasks)
     createdOn: true,
     createdById: true,
     createdByName: true,
+  })
+  .extend({
+    // Override the dueDate validation to handle both Date objects and ISO strings
+    dueDate: z.union([
+      z.date(),
+      z.string().refine(val => !isNaN(new Date(val).getTime()), {
+        message: "Invalid date format"
+      }).transform(val => new Date(val))
+    ])
   });
   
 export const insertUserSchema = createInsertSchema(users).pick({

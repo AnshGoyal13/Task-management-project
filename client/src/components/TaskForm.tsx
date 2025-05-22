@@ -104,12 +104,15 @@ export default function TaskForm({ isOpen, onClose, taskToEdit }: TaskFormProps)
   });
 
   const updateTaskMutation = useMutation({
-    mutationFn: (data: TaskFormValues) => 
-      apiRequest('PATCH', `/api/tasks/${taskToEdit?.id}`, {
+    mutationFn: (data: TaskFormValues) => {
+      // Format the date as an ISO string for the server
+      const dueDateObj = new Date(data.dueDate);
+      return apiRequest('PATCH', `/api/tasks/${taskToEdit?.id}`, {
         ...data,
-        dueDate: new Date(data.dueDate + "T00:00:00Z"),
+        dueDate: dueDateObj,
         lastUpdatedByName: "John Doe", // Default user
-      }),
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
       toast({
