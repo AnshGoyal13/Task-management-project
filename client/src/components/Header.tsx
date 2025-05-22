@@ -22,8 +22,8 @@ export default function Header({ onSearch }: HeaderProps) {
             <SearchBar onSearch={onSearch} className="w-64" />
           </div>
           <div className="flex items-center">
-            <span className="text-sm font-medium mr-2 hidden sm:block">John Doe</span>
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-medium">JD</div>
+            <span className="text-sm font-medium mr-2 hidden sm:block">Ansh Goyal</span>
+            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-medium">AG</div>
           </div>
         </div>
       </div>
