@@ -109,6 +109,9 @@ export default function TasksPage() {
 
   // Handle status filter change
   const handleStatusFilterChange = (status: string) => {
+    // Reset the search query when changing filters
+    setSearchQuery('');
+    
     if (activeStatusFilter === status) {
       // If clicking the same status filter again, clear it
       setActiveStatusFilter('');

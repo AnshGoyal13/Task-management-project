@@ -36,9 +36,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const filter = req.query.filter as string;
       const search = req.query.search as string;
 
-      if (search) {
-        tasks = await storage.searchTasks(search);
+      // First get the base set of tasks
+      if (status) {
+        // If status filter is applied, start with status-filtered tasks
+        console.log(`Filtering tasks by status: ${status}`);
+        tasks = await storage.getTasksByStatus(status);
       } else if (filter) {
+        // If date filter is applied, start with date-filtered tasks
         switch (filter) {
           case 'today':
             tasks = await storage.getTasksDueToday();
@@ -52,14 +56,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
           default:
             tasks = await storage.getAllTasks();
         }
-      } else if (status) {
-        tasks = await storage.getTasksByStatus(status);
-      } else if (sortBy) {
-        tasks = await storage.sortTasks(sortBy, sortOrder);
       } else {
+        // Otherwise get all tasks
         tasks = await storage.getAllTasks();
       }
+      
+      // Then apply search filter if present
+      if (search && tasks.length > 0) {
+        const searchTasks = await storage.searchTasks(search);
+        // Intersection of tasks and searchTasks
+        tasks = tasks.filter(task => 
+          searchTasks.some(searchTask => searchTask.id === task.id)
+        );
+      }
 
+      // Finally, apply sorting if requested
+      if (sortBy) {
+        // Apply a local sort if we already have filtered data
+        const sortField = sortBy === 'due-date' ? 'dueDate' : 
+                         sortBy === 'created-date' ? 'createdOn' : 
+                         sortBy === 'title' ? 'title' : 'status';
+        
+        tasks.sort((a: any, b: any) => {
+          if (sortOrder === 'asc') {
+            return a[sortField] > b[sortField] ? 1 : -1;
+          } else {
+            return a[sortField] < b[sortField] ? 1 : -1;
+          }
+        });
+      }
+      
       res.json(tasks);
     } catch (error) {
       console.error("Error fetching tasks:", error);
