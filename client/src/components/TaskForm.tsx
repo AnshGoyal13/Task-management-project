@@ -142,7 +142,7 @@ export default function TaskForm({ isOpen, onClose, taskToEdit }: TaskFormProps)
         ...data,
         // Include the priority in the request
         priority: data.priority,
-        lastUpdatedByName: "John Doe", // Default user
+        lastUpdatedByName: "Ansh Goyal", // Default user
       });
     },
     onSuccess: () => {
