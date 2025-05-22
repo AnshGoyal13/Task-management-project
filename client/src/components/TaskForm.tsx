@@ -77,11 +77,14 @@ export default function TaskForm({ isOpen, onClose, taskToEdit }: TaskFormProps)
   });
 
   const createTaskMutation = useMutation({
-    mutationFn: (data: TaskFormValues) => 
-      apiRequest('POST', '/api/tasks', {
+    mutationFn: (data: TaskFormValues) => {
+      // Format the date as an ISO string for the server
+      const dueDateObj = new Date(data.dueDate);
+      return apiRequest('POST', '/api/tasks', {
         ...data,
-        dueDate: new Date(data.dueDate + "T00:00:00Z"),
-      }),
+        dueDate: dueDateObj,
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
       toast({
