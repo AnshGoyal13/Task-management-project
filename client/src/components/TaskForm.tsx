@@ -80,7 +80,7 @@ export default function TaskForm({ isOpen, onClose, taskToEdit }: TaskFormProps)
     mutationFn: (data: TaskFormValues) => 
       apiRequest('POST', '/api/tasks', {
         ...data,
-        dueDate: new Date(data.dueDate),
+        dueDate: new Date(data.dueDate + "T00:00:00Z"),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
@@ -104,7 +104,7 @@ export default function TaskForm({ isOpen, onClose, taskToEdit }: TaskFormProps)
     mutationFn: (data: TaskFormValues) => 
       apiRequest('PATCH', `/api/tasks/${taskToEdit?.id}`, {
         ...data,
-        dueDate: new Date(data.dueDate),
+        dueDate: new Date(data.dueDate + "T00:00:00Z"),
         lastUpdatedByName: "John Doe", // Default user
       }),
     onSuccess: () => {
