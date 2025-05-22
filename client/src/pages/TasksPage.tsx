@@ -47,12 +47,14 @@ export default function TasksPage() {
   // Fetch tasks with filters applied
   const { data: tasks, isLoading, isError, error } = useQuery<Task[]>({
     queryKey: ['/api/tasks', activeFilter, activeStatusFilter, searchQuery, sortBy, sortOrder],
-    queryFn: () => 
-      fetch(`/api/tasks?${queryParams.toString()}`)
+    queryFn: () => {
+      console.log(`Fetching tasks with params: ${queryParams.toString()}`);
+      return fetch(`/api/tasks?${queryParams.toString()}`)
         .then((res) => {
           if (!res.ok) throw new Error('Failed to fetch tasks');
           return res.json();
-        }),
+        });
+    },
   });
 
   // Calculate task counts
@@ -107,8 +109,15 @@ export default function TasksPage() {
 
   // Handle status filter change
   const handleStatusFilterChange = (status: string) => {
-    setActiveStatusFilter(status);
-    setActiveFilter('all');
+    if (activeStatusFilter === status) {
+      // If clicking the same status filter again, clear it
+      setActiveStatusFilter('');
+    } else {
+      // Set the new status filter
+      setActiveStatusFilter(status);
+      // Clear the date-based filter when setting a status filter
+      setActiveFilter('all');
+    }
   };
 
   // Handle sort change
