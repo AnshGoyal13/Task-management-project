@@ -99,8 +99,8 @@ export default function TaskForm({ isOpen, onClose, taskToEdit }: TaskFormProps)
     status: taskToEdit?.status || "not-started",
     priority: getTaskPriority(taskToEdit),
     remarks: taskToEdit?.remarks || "",
-    createdByName: "John Doe", // Default user, in a real app this would come from auth context
-    lastUpdatedByName: "John Doe", // Default user
+    createdByName: "Ansh Goyal", // Default user, in a real app this would come from auth context
+    lastUpdatedByName: "Ansh Goyal", // Default user
   };
 
   const form = useForm<TaskFormValues>({
